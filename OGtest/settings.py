@@ -39,8 +39,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     # Project app
     'shop',
-    # Third-party app
-    # 'south',
 )
 
 MIDDLEWARE_CLASSES = (
