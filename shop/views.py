@@ -74,22 +74,14 @@ def account_detail(request):
 def bookstore(request):
   return render_to_response('shop/bookstore.html', {'products': Product.objects.filter(store__name='Books'), 'repath': request.path}, context_instance=RequestContext(request))
 
-def book(request, product_id):
-  return render_to_response('shop/book.html', {'product': Product.objects.get(id=product_id)}, context_instance=RequestContext(request))
-
 def moviestore(request):
   return render_to_response('shop/moviestore.html', {'products': Product.objects.filter(store__name='Movies'), 'repath': request.path}, context_instance=RequestContext(request))
-
-def movie(request, product_id):
-  return render_to_response('shop/movie.html', {'product': Product.objects.get(id=product_id)}, context_instance=RequestContext(request))
 
 def drinkstore(request):
   return render_to_response('shop/drinkstore.html', {'products': Product.objects.filter(store__name='Drinks'), 'repath': request.path}, context_instance=RequestContext(request))
 
-def drink(request, product_id):
-  return render_to_response('shop/drink.html', {'product': Product.objects.get(id=product_id)}, context_instance=RequestContext(request))
-
 def addToCart(request, quantity=1):
+  # ajax request to update the session
   cart = request.session.get('cart', {})
   product_id = request.GET['product_id']
   if product_id in cart:
@@ -101,6 +93,7 @@ def addToCart(request, quantity=1):
   return HttpResponse("add ok")
   
 def update_cart(request):
+  # called by the 'update' button on the cart page
   if request.method == 'POST':
     cart = request.session.get('cart', {})
     newcart = {}
@@ -113,8 +106,8 @@ def update_cart(request):
   return redirect("/view_cart")
 
 def view_cart(request):
-  ### UPDATE CART INFO FIRST
   if request.method == 'POST':
+    ### UPDATE CART INFO FIRST if not redirected from update_cart GET    
     cart = request.session.get('cart', {})
     newcart = {}
     for product_id in cart:
@@ -123,14 +116,14 @@ def view_cart(request):
       if int(cart[product_id]) != 0:
         newcart[product_id] = cart[product_id]
     request.session['cart'] = newcart
-  ###
+
   cartsummary = get_cart_summary(request)
   if "checkout" in request.POST:
     return redirect("/checkout")
   else:
     return render_to_response('shop/cart.html', {'carts': cartsummary}, context_instance=RequestContext(request))
 
-@login_required(login_url ='/customers/login/')  
+@login_required(login_url ='/customers/login/')  # Ask user to login before they checkout
 def checkout(request):
   cartsummary = get_cart_summary(request)
   return render_to_response('shop/checkout.html', {'carts': cartsummary}, context_instance=RequestContext(request))
@@ -150,6 +143,7 @@ def get_cart_summary(request):
 
 def order_process(request):
   if request.method == 'POST':
+    ### UPDATE CART INFO FIRST
     cart = request.session.get('cart', {})
     newcart = {}
     for product_id in cart:
@@ -159,41 +153,71 @@ def order_process(request):
         newcart[product_id] = cart[product_id]
     request.session['cart'] = newcart  
 
-    user = request.user
-    curdate = datetime.datetime.now()
+    if len(newcart) == 0:
+      return redirect("/order_invalid")
+    else:
+      # create an order object first
+      user = request.user
+      curdate = datetime.datetime.now()
+      order = Order(user = user, date = curdate)
+      order.save()
 
-    order = Order(user = user, date = curdate)
-    order.save()
+      # create a list of order detail objects with PK = order, product
+      for product_id in newcart:
+        p = Product.objects.get(id=product_id)
+        quantity = newcart[product_id]
+        orderdetail = Orderdetail(order = order, product = p, quantity = quantity)
+        orderdetail.save()
 
-    recipient = request.POST['recipient']
-    street = request.POST['street']
-    city = request.POST['city']
-    state = request.POST['state']
-    postal_code = request.POST['postalcode']
-    shippinginfo = shipping_info(order = order, 
+      if shipValidate(request):
+        # then a shipping_info object with FK order
+        recipient = request.POST['recipient']
+        street = request.POST['street']
+        city = request.POST['city']
+        state = request.POST['state']
+        postal_code = request.POST['postalcode']
+        shippinginfo = shipping_info(order = order, 
                                   recipient = recipient, 
                                   street = street, 
                                   city = city, 
                                   state = state, 
                                   postal_code = postal_code)
-    shippinginfo.save()
+        shippinginfo.save()
+      else:
+        return redirect("/order_invalid")
 
-    card_holder = request.POST['cardholder']
-    card_num = request.POST['cardnum']
-    expire_date = request.POST['expiredate']
-    paymentinfo = payment_info(order = order, 
+      if paymentValidate(request):
+        # then a payment_info object with FK order
+        card_holder = request.POST['cardholder']
+        card_num = request.POST['cardnum']
+        expire_date = request.POST['expiredate']
+        paymentinfo = payment_info(order = order, 
                                 card_holder = card_holder, 
                                 card_num = card_num, 
                                 expire_date = expire_date)
-    paymentinfo.save()
+        paymentinfo.save()
+      else:
+        return redirect("/order_invalid")
 
-    for product_id in newcart:
-      p = Product.objects.get(id=product_id)
-      quantity = newcart[product_id]
-      orderdetail = Orderdetail(order = order, product = p, quantity = quantity)
-      orderdetail.save()
+      # clean the cart info stored in the session    
+      request.session['cart'] = {}
+      return render_to_response('shop/order_success.html', context_instance=RequestContext(request))
 
-    request.session['cart'] = {}
-    request.session['cartnum'] = 0
-    return render_to_response('shop/order_success.html', context_instance=RequestContext(request))
+def order_invalid(request):
+  return render_to_response('shop/order_invalid.html', context_instance=RequestContext(request))
 
+def shipValidate(request):
+  ship_list = ["recipient", "street", "city", "state", "postalcode"]
+  for k in ship_list:
+    if k in request.POST:
+      if not request.POST[k]:
+        return False
+  return True
+
+def paymentValidate(request):
+  ship_list = ["cardholder", "cardnum", "expiredate"]
+  for k in ship_list:
+    if k in request.POST:
+      if not request.POST[k]:
+        return False
+  return True

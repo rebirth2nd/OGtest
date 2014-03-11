@@ -21,15 +21,13 @@ urlpatterns = patterns('',
     url(r'^customers/account/$', 'shop.views.account_detail'),
     # store page
     url(r'^stores/books/$', 'shop.views.bookstore'),
-    url(r'^stores/books/(?P<product_id>\d+)/$', 'shop.views.book'),
     url(r'^stores/movies/$', 'shop.views.moviestore'),
-    url(r'^stores/movies/(?P<product_id>\d+)/$', 'shop.views.movie'),
     url(r'^stores/drinks/$', 'shop.views.drinkstore'),
-    url(r'^stores/drinks/(?P<product_id>\d+)/$', 'shop.views.drink'),
     # session-based shopping cart
     url(r'^addToCart/$', 'shop.views.addToCart'),
     url(r'^view_cart/$', 'shop.views.view_cart'),
     # checkout
     url(r'^checkout/$', 'shop.views.checkout'),
     url(r'^order_process/$', 'shop.views.order_process'),
+    url(r'^order_invalid/$', 'shop.views.order_invalid'),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
