@@ -13,3 +13,16 @@ Install the dependency with pip:
 ```
 pip install -r requirements.txt
 ```
+
+Server
+============
+* The local development server is running at 127.0.0.1:8000
+* Admin portal is at 127.0.0.1:8000/admin
+
+Superuser account
+============
+My superuser account to login admin:
+
+Username: qingyuan
+
+Password: 3081938 
