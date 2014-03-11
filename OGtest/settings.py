@@ -40,7 +40,7 @@ INSTALLED_APPS = (
     # Project app
     'shop',
     # Third-party app
-    'south',
+    # 'south',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -87,6 +87,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # Admin uploaded files (product photo)
+# MEDIA_ROOT = '/home/qingyuan/mycode/django/OGtest_dev/OGtest/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 MEDIA_URL = '/media/'
 
 # Template directory
