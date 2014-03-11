@@ -91,31 +91,23 @@ def addToCart(request, quantity=1):
     cart[product_id] = quantity
   request.session['cart'] = cart
   return HttpResponse("add ok")
-  
+
+# helper function  
 def update_cart(request):
   # called by the 'update' button on the cart page
-  if request.method == 'POST':
-    cart = request.session.get('cart', {})
-    newcart = {}
-    for product_id in cart:
-      cart[product_id] = request.POST.get(product_id) 
-      # delete product which quantity == 0 in the update cart
-      if int(cart[product_id]) != 0:
-        newcart[product_id] = cart[product_id]
-    request.session['cart'] = newcart
-  return redirect("/view_cart")
+  cart = request.session.get('cart', {})
+  newcart = {}
+  for product_id in cart:
+    cart[product_id] = request.POST.get(product_id) 
+    # delete product which quantity == 0 in the update cart
+    if int(cart[product_id]) != 0:
+      newcart[product_id] = cart[product_id]
+  request.session['cart'] = newcart
 
 def view_cart(request):
   if request.method == 'POST':
-    ### UPDATE CART INFO FIRST if not redirected from update_cart GET    
-    cart = request.session.get('cart', {})
-    newcart = {}
-    for product_id in cart:
-      cart[product_id] = request.POST.get(product_id)
-      # delete product which quantity == 0 in the update cart
-      if int(cart[product_id]) != 0:
-        newcart[product_id] = cart[product_id]
-    request.session['cart'] = newcart
+    ### UPDATE CART INFO FIRST if directed from the update submit form    
+    update_cart(request)
 
   cartsummary = get_cart_summary(request)
   if "checkout" in request.POST:
@@ -128,6 +120,7 @@ def checkout(request):
   cartsummary = get_cart_summary(request)
   return render_to_response('shop/checkout.html', {'carts': cartsummary}, context_instance=RequestContext(request))
 
+# helper function
 def get_cart_summary(request):
   cart = request.session.get('cart', {})
   cartsummary = []
@@ -144,14 +137,8 @@ def get_cart_summary(request):
 def order_process(request):
   if request.method == 'POST':
     ### UPDATE CART INFO FIRST
-    cart = request.session.get('cart', {})
-    newcart = {}
-    for product_id in cart:
-      cart[product_id] = request.POST[product_id]
-      # delete product which quantity == 0 in the update cart
-      if int(cart[product_id]) != 0:
-        newcart[product_id] = cart[product_id]
-    request.session['cart'] = newcart  
+    update_cart(request)
+    newcart = request.session.get('cart', {})
 
     if len(newcart) == 0:
       return redirect("/order_invalid")
