@@ -1,0 +1,47 @@
+{% extends 'shop/base.html' %}
+
+{% block containercontent %}
+  <div class='contaier' style='padding: 70px 0 0 0'>
+  <div class="row">
+    {% if products %}
+    {% for product in products %}
+    <div class="col-lg-4">
+      <img src="{{product.photo.url}}" style="width: 180px; height: 200px" />
+      <p><h2>{{product.name}}</h2><i class="fa fa-usd"></i> {{product.dollar_price}}</p>
+      <p class="comment">{{product.description}}</p>
+      <p>
+        <a class="btn btn-default" href="{{repath}}{{product.id}}" role="button">View details &raquo;</a>
+        <button class="btn btn-primary" onclick="return addToCart({{product.id}});">Add to cart</a>
+      </p>
+    </div><!-- /.col-lg-4 -->
+    {% endfor %}
+    {% endif %}
+  </div><!-- /.row -->
+  </div>
+{% endblock %}
+
+{% block bodyscriptadd %}
+<script type="text/javascript" src="http://viralpatel.net/blogs/demo/jquery/jquery.shorten.1.0.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $(".comment").shorten({
+           "showChars" : 200,
+        });
+    });
+
+function addToCart(product_id) {
+  var myData = {};
+  myData['product_id'] = product_id;
+
+  $.ajax({
+    url:'/addToCart/',
+    data: myData,
+    success: function() {
+      alert("Added to cart successfully!");
+    },
+    error: function(xhr,errmsg,err) { alert(xhr.status + "wrong: " + xhr.responseText);
+    }
+  })
+};
+</script>
+{% endblock %}

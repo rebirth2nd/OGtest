@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+
+<html lang="en">
+<head>
+  <title>{% block title %}{% endblock %}</title>
+  {% block headcommon %}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    {% block headkeywords %}{% endblock%}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% endblock%}
+
+  {% block headscript %}{% endblock %}
+
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="{{ STATIC_URL }}shop/css/base.css" type="text/css" />
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" type="text/css" />
+
+  {% block headadditional %}{% endblock %}
+  <script src="{{ STATIC_URL }}shop/js/modernizr.custom.js"></script>
+</head>
+
+<body>
+  <div id="wrap">
+  {% block navbar %}
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/"><sup>Qingyuan's</sup> Secret Shop</a>
+      </div><!-- nav-header -->
+
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          {% if user.is_authenticated %}
+          <li><p class='navbar-text'>Hi {{ user.username }}</p></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Service<b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="/customers/account">My Account</a></li>
+              <li class="divider"></li>
+              <li><a href="/customers/logout">Logout</a></li>
+            </ul>
+          </li>
+          {% else %}
+          <li><a href="/customers/login">Sign in</a></li>
+          <li><a href="/customers/register">New guest?</a></li>
+          {% endif %}
+          <li><a href="/stores/books">Books</a></li>
+          <li><a href="/stores/movies">Movies</a></li>
+          <li><a href="/stores/drinks">Drinks</a></li> 
+        </ul>
+        {% block additionalnavbar %}{% endblock %}
+        <ul class="nav navbar-nav navbar-right" style="margin-right: 250px">
+          <li><a href="/view_cart"><i class="fa fa-shopping-cart fa-2x"></i> Your Cart</a></li>
+        </ul>
+      </div><!-- nav-collapse -->
+    </nav><!-- navbar -->
+  {% endblock %}
+
+  {% block containercontent %}{% endblock %}
+  </div><!-- wrap end -->
+
+  {% block containerfooter %}
+    <div id="footer">
+	<div class="container">
+        </div>      
+    </div>
+  {% endblock %}
+
+  {% block bodyscript %}
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+    
+    {% block bodyscriptadd %}{% endblock %}
+
+    <!-- Google analytics -->
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-35548411-1']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' :
+                  'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+    
+  {% endblock %}
+
+</body>
+</html>
+
+

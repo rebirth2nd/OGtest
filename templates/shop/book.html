@@ -1,0 +1,16 @@
+{% extends 'shop/base.html' %}
+
+{% block containercontent %}
+  <div class='contaier' style='padding: 70px 0 0 0'>
+  <div class="row">
+    {% if product %}
+    <div class="col-lg-4">
+      <img src="{{product.photo.url}}" style="width: 180px; height: 200px" />
+      <h2>{{product.name}}</h2>
+      <p class="comment">{{product.description}}</p>
+    </div><!-- /.col-lg-4 -->
+    {% endif %}
+  </div><!-- /.row -->
+  </div>
+{% endblock %}
+

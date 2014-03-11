@@ -1,0 +1,22 @@
+{% extends 'shop/base.html' %}
+
+{% block containercontent %}
+
+  <div class='container' style="padding: 70px 0 0 0">
+  {% if next %}
+  <form action='/customers/auth/?next={{next}}' method='POST' class="form-signin" role="form">
+  {% else %}
+  <form action='/customers/auth/' method='POST' class="form-signin" role="form">
+  {% endif %}
+    {% csrf_token %}
+    <h2 class="form-signin-heading">Please sign in</h2>
+    <input type="text" name='username' class="form-control" placeholder="Email address" required autofocus>
+    <input type="password" name='password' class="form-control" placeholder="Password" required>
+    <label class="checkbox">
+      <input type="checkbox" value="remember-me"> Remember me
+    </label>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+  </form>
+  </div>
+
+{% endblock %}

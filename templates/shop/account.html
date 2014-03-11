@@ -1,0 +1,45 @@
+{% extends 'shop/base.html' %}
+
+{% block containercontent %}
+  
+  {% if orders %}
+  <div class="container table-responsive">
+  <h2>Hi, {{user.username}}!</h2>
+  <table class='table-bordered'>
+    <tr>
+      <th>Order Info</th>
+      <th>Contained Items</th>
+    </tr>
+  {% for order in orders %}
+    <tr>
+      <td>
+        <ul class="list-group">
+          <li class="list-group-item">Created on: {{order.date}}</li>
+          <li class="list-group-item">Recipient: {{order.get_recipient}}</li>
+          <li class="list-group-item">Shipping to: {{order.get_shipping_address}}</li>
+          <li class="list-group-item">Total amount: {{order.get_total_price}}</li>
+        </ul>
+      </td>
+      <td>
+        <ul class="list-group">
+          {% for detail in order.orderdetail_set.all %}
+            <li class="list-group-item">
+              <div class="row">
+                <div class="col-md-1" style="padding: 0 15px 0 5px">
+                  <img class="media-object pull-left" src="{{detail.product.photo.url}}" alt="..." style="width: 36px; height: 40px">
+                </div>
+                <div class ="col-md-11">
+                  {{detail.product.name}}<br>quantity: {{detail.quantity}} 
+                </div>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      </td>
+    </tr>
+  {% endfor %}
+  </table>
+  </div>
+  {% endif %}
+
+{% endblock %}
